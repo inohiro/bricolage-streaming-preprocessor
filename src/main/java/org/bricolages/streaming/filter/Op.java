@@ -1,5 +1,5 @@
 package org.bricolages.streaming.filter;
-import org.bricolages.streaming.ConfigError;
+import org.bricolages.streaming.exception.ConfigError;
 import java.util.function.Function;
 import java.util.Map;
 import java.util.HashMap;

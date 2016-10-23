@@ -21,9 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 public class EventQueue {
     final SQSQueue queue;
     final Map<String, DeleteBufferEntry> deleteBuffer = new HashMap<String, DeleteBufferEntry>();
+
     static final int SQS_DELETE_BATCH_MAX = 10;
     static final int BUFFER_SIZE_MAX = SQS_DELETE_BATCH_MAX;
     static final int DELETE_MAX_RETRY_COUNT = 5;
+
+    public void send(Event e) {
+        queue.sendMessage(e.getBody());
+    }
 
     public List<Event> poll() {
         return stream().collect(Collectors.toList());

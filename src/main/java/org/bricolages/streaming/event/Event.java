@@ -13,6 +13,8 @@ public abstract class Event {
     static final List<MessageParser> PARSERS = new ArrayList<MessageParser>();
     static {
         PARSERS.add(new S3Event.Parser());
+        PARSERS.add(new ProcessPacketEvent.Parser());
+        PARSERS.add(new FlushPendingEvent.Parser());
         PARSERS.add(new ShutdownEvent.Parser());
         PARSERS.add(new UnknownEvent.Parser());
     }
@@ -53,5 +55,13 @@ public abstract class Event {
     @Override
     public String toString() {
         return "#<Event messageId=" + getMessageId() + ">";
+    }
+
+    // default implementation
+    public String getBody() {
+        if (message == null) {
+            throw new UnsupportedOperationException("Event#getBody()");
+        }
+        return message.getBody();
     }
 }

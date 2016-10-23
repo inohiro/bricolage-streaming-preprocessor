@@ -1,8 +1,8 @@
-package org.bricolages.streaming;
-import org.bricolages.streaming.s3.ObjectMapper;
+package org.bricolages.streaming.preprocess;
+import org.bricolages.streaming.stream.StreamRouter;
+import org.bricolages.streaming.exception.ConfigError;
 import org.yaml.snakeyaml.Yaml;
 import java.util.List;
-import java.util.Map;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,7 +36,7 @@ class Config {
 
     public ReceiveQueueEntry eventQueue;
     public SendQueueEntry logQueue;
-    public List<ObjectMapper.Entry> mapping;
+    public List<StreamRouter.Entry> mapping;
 
     static final class ReceiveQueueEntry {
         public String url;

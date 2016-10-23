@@ -26,6 +26,10 @@ public class SQSMessageBodyWriter {
         return key(key).value(value);
     }
 
+    public SQSMessageBodyWriter pair(String key, boolean value) {
+        return key(key).value(value);
+    }
+
     public SQSMessageBodyWriter pair(String key, Instant value) {
         return key(key).value(value);
     }
@@ -41,6 +45,10 @@ public class SQSMessageBodyWriter {
 
     public SQSMessageBodyWriter value(long value) {
         return value(Long.toString(value));
+    }
+
+    public SQSMessageBodyWriter value(boolean value) {
+        return value(Boolean.toString(value));
     }
 
     public SQSMessageBodyWriter value(Instant t) {

@@ -1,10 +1,9 @@
-package org.bricolages.streaming;
-import org.bricolages.streaming.filter.ObjectFilterFactory;
+package org.bricolages.streaming.preprocess;
+import org.bricolages.streaming.stream.StreamRouter;
 import org.bricolages.streaming.event.EventQueue;
 import org.bricolages.streaming.event.LogQueue;
 import org.bricolages.streaming.event.SQSQueue;
 import org.bricolages.streaming.s3.S3Agent;
-import org.bricolages.streaming.s3.ObjectMapper;
 import org.bricolages.streaming.s3.S3ObjectLocation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -85,31 +84,22 @@ public class Application {
         }
 
         if (mapUrl != null) {
-            val result = mapper().map(mapUrl);
-            System.out.println(result.getDestLocation());
+            val packet = streamRouter().route(mapUrl);
+            System.out.println(packet.getDestination());
             System.exit(0);
         }
 
         log.info("configPath=" + configPath);
-        val preproc = preprocessor();
         if (procUrl != null) {
             val out = new BufferedWriter(new OutputStreamWriter(System.out));
-            val success = preproc.processUrl(procUrl, out);
+            preprocessor().processOnly(procUrl, out);
             out.flush();
-            if (success) {
-                System.err.println("SUCCEEDED");
-                System.exit(0);
-            }
-            else {
-                System.err.println("FAILED");
-                System.exit(1);
-            }
         }
         else if (oneshot) {
-            preproc.runOneshot();
+            queueListener().runOnce();
         }
         else {
-            preproc.run();
+            queueListener().run();
         }
     }
 
@@ -135,8 +125,13 @@ public class Application {
     }
 
     @Bean
+    public QueueListener queueListener() {
+        return new QueueListener(eventQueue(), preprocessor());
+    }
+
+    @Bean
     public Preprocessor preprocessor() {
-        return new Preprocessor(eventQueue(), logQueue(), s3(), mapper(), filterFactory());
+        return new Preprocessor(streamRouter(), s3agent());
     }
 
     @Bean
@@ -157,17 +152,12 @@ public class Application {
     }
 
     @Bean
-    public S3Agent s3() {
+    public S3Agent s3agent() {
         return new S3Agent(new AmazonS3Client());
     }
 
     @Bean
-    public ObjectMapper mapper() {
-        return new ObjectMapper(getConfig().mapping);
-    }
-
-    @Bean
-    public ObjectFilterFactory filterFactory() {
-        return new ObjectFilterFactory();
+    public StreamRouter streamRouter() {
+        return new StreamRouter(getConfig().mapping);
     }
 }
