@@ -84,18 +84,20 @@ public class EventQueue {
             for (val failure : result.getFailed()) {
                 val ent = deleteBuffer.get(failure.getId());
                 if (ent == null) {
-                    log.warn("MUST NOT HAPPEN: could not lookup DeleteBufferEntry: {}", failure.getId());
+                    log.error("MUST NOT HAPPEN: could not lookup DeleteBufferEntry: {}", failure.getId());
                     continue;
                 }
                 ent.failed();
+                // FIXME: throttle
                 log.warn("SQS DeleteMessageBatch failed partially (count={}): {}", ent.failureCount, ent.event);
                 if (ent.failureCount >= DELETE_MAX_RETRY_COUNT) {
-                    log.warn("SQS DeleteMessageBatch failed too much; give up deleting message: {}", ent.event);
+                    log.error("SQS DeleteMessageBatch failed too much; give up deleting message: {}", ent.event);
                     deleteBuffer.remove(failure.getId());
                 }
             }
         }
         if (deleteBuffer.size() > BUFFER_SIZE_MAX * 10) {
+            // FIXME: throttle
             log.warn("SQS DeleteMessageBatch buffer size is too large: count={}", deleteBuffer.size());
         }
     }
@@ -118,10 +120,11 @@ public class EventQueue {
             for (val failure : result.getFailed()) {
                 val ent = deleteBuffer.get(failure.getId());
                 if (ent == null) {
-                    log.warn("MUST NOT HAPPEN: could not lookup DeleteBufferEntry: {}", failure.getId());
+                    log.error("MUST NOT HAPPEN: could not lookup DeleteBufferEntry: {}", failure.getId());
                 }
                 else {
-                    log.warn("SQS DeleteMessageBatch failed (message remains in the queue): {}", ent.event);
+                    // FIXME: throttle
+                    log.error("SQS DeleteMessageBatch failed (message remains in the queue): {}", ent.event);
                 }
                 nFailure++;
                 deleteBuffer.remove(failure.getId());
@@ -129,7 +132,7 @@ public class EventQueue {
         }
         if (! deleteBuffer.isEmpty()) {
             for (val ent : deleteBuffer.values()) {
-                log.warn("MUST NOT HAPPEN: unhandled delete request: {}", ent.event);
+                log.error("MUST NOT HAPPEN: unhandled delete request: {}", ent.event);
             }
         }
         log.info("*** Async delete requests cleared (could not remove {} events)", nFailure);

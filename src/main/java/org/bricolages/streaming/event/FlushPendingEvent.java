@@ -25,7 +25,7 @@ public class FlushPendingEvent extends Event {
                 throw new MessageParseException(ex.getMessage());
             }
             catch (IOException ex) {
-                // FIXME?
+                // must not happen
                 throw new MessageParseException(ex.getMessage());
             }
         }

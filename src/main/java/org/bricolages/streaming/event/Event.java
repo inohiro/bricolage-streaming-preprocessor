@@ -27,12 +27,12 @@ public abstract class Event {
                     return (e == null) ? Stream.empty() : Stream.of(e);
                 }
             }
-            return Stream.empty();
+            return Stream.of(new UnknownEvent(msg));
         }
         catch (MessageParseException ex) {
-            // FIXME: notify?
-            log.error("could not interpret SQS message", ex);
-            return Stream.empty();
+            // FIXME: throttle
+            log.error("SQS message body parse error: {}", ex.getMessage());
+            return Stream.of(new UnknownEvent(msg));
         }
     }
 

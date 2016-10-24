@@ -23,7 +23,8 @@ public class Preprocessor {
     public void processObject(S3ObjectLocation location, boolean doesDispatch) {
         DataPacket packet = router.route(location);
         if (packet == null) {
-            log.warn("could not detect a stream: {}", location);
+            // FIXME: throttle
+            log.error("could not detect a stream: {}", location);
             return;
         }
         processPacket(packet, doesDispatch);
@@ -82,12 +83,14 @@ public class Preprocessor {
             return result;
         }
         catch (S3IOException | IOException ex) {
+            // FIXME: throttle
             log.error("src: {}, error: {}", packet.getLocation(), ex.getMessage());
             activity.failed(ex.getMessage());
             activityRepos.save(activity);
             return null;
         }
         catch (ConfigError ex) {
+            // FIXME: throttle
             log.error("src: {}, error: {}", packet.getLocation(), ex.getMessage());
             activity.error(ex.getMessage());
             activityRepos.save(activity);

@@ -75,7 +75,7 @@ public class StreamRouter {
                 );
             }
         }
-        // FIXME: avoid to send too many logs
+        // FIXME: throttle
         log.error("could not map the object URL to any stream: {}", src);
         return null;
     }

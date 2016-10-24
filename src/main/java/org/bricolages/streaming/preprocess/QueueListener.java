@@ -15,14 +15,28 @@ public class QueueListener implements EventHandlers {
     final EventQueue eventQueue;
     final Preprocessor preprocessor;
 
+    static final long INIT_SLEEP_SECONDS = 1;
+    static final long MAX_SLEEP_SECONDS = 64;
+
     public void run() throws IOException {
         log.info("server started");
         trapSignals();
         try {
+            boolean emptyPoll = false;
+            long sleepLen = INIT_SLEEP_SECONDS;
             while (!isTerminating()) {
-                // FIXME: insert sleep on empty result
+                if (emptyPoll) {
+                    safeSleep(sleepLen);
+                    sleepLen *= 2;
+                    if (sleepLen > MAX_SLEEP_SECONDS) {
+                        sleepLen = MAX_SLEEP_SECONDS;
+                    }
+                }
+                else {
+                    sleepLen = INIT_SLEEP_SECONDS;
+                }
                 try {
-                    handleEvents();
+                    emptyPoll = handleEvents();
                     eventQueue.flushDelete();
                 }
                 catch (SQSException ex) {
@@ -52,19 +66,18 @@ public class QueueListener implements EventHandlers {
     }
 
     boolean handleEvents() {
-        boolean empty = true;
-        for (val event : eventQueue.poll()) {
+        List<Event> events = eventQueue.poll();
+        for (val event : events) {
             log.debug("processing message: {}", event.getMessageBody());
             event.callHandler(this);
-            empty = false;
         }
-        return empty;
+        return events.isEmpty();
     }
 
     @Override
     public void handleUnknownEvent(UnknownEvent event) {
-        // FIXME: notify?
-        log.warn("unknown message: {}", event.getMessageBody());
+        // FIXME: throttle
+        log.error("unknown message: {}", event.getMessageBody());
         eventQueue.deleteAsync(event);
     }
 
