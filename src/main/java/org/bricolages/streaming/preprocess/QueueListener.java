@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.List;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,15 +16,15 @@ public class QueueListener implements EventHandlers {
     final EventQueue eventQueue;
     final Preprocessor preprocessor;
 
-    static final long INIT_SLEEP_SECONDS = 1;
-    static final long MAX_SLEEP_SECONDS = 64;
+    static final int INIT_SLEEP_SECONDS = 1;
+    static final int MAX_SLEEP_SECONDS = 64;
 
     public void run() throws IOException {
         log.info("server started");
         trapSignals();
         try {
             boolean emptyPoll = false;
-            long sleepLen = INIT_SLEEP_SECONDS;
+            int sleepLen = INIT_SLEEP_SECONDS;
             while (!isTerminating()) {
                 if (emptyPoll) {
                     safeSleep(sleepLen);
@@ -67,7 +68,7 @@ public class QueueListener implements EventHandlers {
 
     boolean handleEvents() {
         List<Event> events = eventQueue.poll();
-        for (val event : events) {
+        for (Event event : events) {
             log.debug("processing message: {}", event.getMessageBody());
             event.callHandler(this);
         }
@@ -89,7 +90,7 @@ public class QueueListener implements EventHandlers {
     }
 
     Thread mainThread;
-    boolean isTerminating = false;
+    volatile boolean isTerminating = false;
 
     void trapSignals() {
         mainThread = Thread.currentThread();

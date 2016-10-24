@@ -1,5 +1,6 @@
 package org.bricolages.streaming.preprocess;
 import org.bricolages.streaming.stream.*;
+import org.bricolages.streaming.task.*;
 import org.bricolages.streaming.filter.*;
 import org.bricolages.streaming.s3.*;
 import org.bricolages.streaming.exception.ConfigError;
@@ -46,7 +47,7 @@ public class Preprocessor {
         }
         Result result = process(packet);
         if (result != null && doesDispatch) {
-            writeDispatchInfo(packet, result);
+            writeDataChunk(packet, result);
         }
     }
 
@@ -58,8 +59,12 @@ public class Preprocessor {
         }
     }
 
-    void writeDispatchInfo(DataPacket packet, Result result) {
-        // FIXME
+    @Autowired
+    DataChunkRepository chunkRepos;
+
+    void writeDataChunk(DataPacket packet, Result result) {
+        DataChunk chunk = new DataChunk(packet, (int)result.metadata.size(), result.stats.outputRows, result.stats.errorRows);
+        chunk = chunkRepos.save(chunk);
     }
 
     @NoArgsConstructor
