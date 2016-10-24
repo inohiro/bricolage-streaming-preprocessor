@@ -36,6 +36,7 @@ public class StreamRouter {
 
     public DataPacket route(S3ObjectLocation src) throws ConfigError {
         val result = parseUrl(src);
+        if (result == null) return null;
         DataStream stream = findOrCreateStream(result.streamName, result.streamPrefix);
         return new DataPacket(stream, src, result.destLocation());
     }

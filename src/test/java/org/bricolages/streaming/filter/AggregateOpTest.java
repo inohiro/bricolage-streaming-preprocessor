@@ -3,10 +3,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class AggregateOpTest {
+public class AggregateOpTest extends OpTest {
     @Test
     public void apply() throws Exception {
-        val def = new OperatorDefinition("aggregate", "schema.table", "*", "{\"targetColumns\":\"^q:\",\"aggregatedColumn\":\"q\"}");
+        val def = new OperatorDefinition(stream("schema.table"), "aggregate", "*", "{\"targetColumns\":\"^q:\",\"aggregatedColumn\":\"q\"}");
         val op = (AggregateOp)Op.build(def);
         val rec = Record.parse("{\"a\":1,\"q:x\":2,\"q:y\":3,\"b\":4}");
         val out = op.apply(rec);

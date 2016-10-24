@@ -4,10 +4,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class TimeZoneOpTest {
+public class TimeZoneOpTest extends OpTest {
     @Test
     public void build() throws Exception {
-        val def = new OperatorDefinition("timezone", "schema.table", "tz_col", "{\"sourceOffset\":\"+00:00\",\"targetOffset\":\"+09:00\"}");
+        val def = new OperatorDefinition(stream("schema.table"), "timezone", "tz_col", "{\"sourceOffset\":\"+00:00\",\"targetOffset\":\"+09:00\"}");
         val op = (TimeZoneOp)Op.build(def);
         assertEquals("tz_col", op.targetColumnName());
         assertEquals(ZoneOffset.of("+00:00"), op.sourceOffset);

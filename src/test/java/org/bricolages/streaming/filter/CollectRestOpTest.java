@@ -3,10 +3,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class CollectRestOpTest {
+public class CollectRestOpTest extends OpTest {
     @Test
     public void apply() throws Exception {
-        val def = new OperatorDefinition("collectrest", "schema.table", "*", "{\"rejectColumns\":[\"a\",\"c\"],\"aggregatedColumn\":\"rest\"}");
+        val def = new OperatorDefinition(stream("schema.table"), "collectrest", "*", "{\"rejectColumns\":[\"a\",\"c\"],\"aggregatedColumn\":\"rest\"}");
         val op = (CollectRestOp)Op.build(def);
         val rec = Record.parse("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}");
         val out = op.apply(rec);

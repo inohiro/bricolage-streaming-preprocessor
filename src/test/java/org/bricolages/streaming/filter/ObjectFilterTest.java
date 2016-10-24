@@ -5,12 +5,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class ObjectFilterTest {
+public class ObjectFilterTest extends OpTest {
     ObjectFilter newFilter() {
         val ops = new ArrayList<Op>();
-        ops.add(Op.build(new OperatorDefinition("int", "schema.table", "int_col", "{}")));
-        ops.add(Op.build(new OperatorDefinition("bigint", "schema.table", "bigint_col", "{}")));
-        ops.add(Op.build(new OperatorDefinition("text", "schema.table", "text_col", "{\"maxByteLength\":10,\"dropIfOverflow\":true}")));
+        val stream = stream("schema.test");
+        ops.add(Op.build(new OperatorDefinition(stream, "int", "int_col", "{}")));
+        ops.add(Op.build(new OperatorDefinition(stream, "bigint", "bigint_col", "{}")));
+        ops.add(Op.build(new OperatorDefinition(stream, "text", "text_col", "{\"maxByteLength\":10,\"dropIfOverflow\":true}")));
         return new ObjectFilter(ops);
     }
 
@@ -32,14 +33,13 @@ public class ObjectFilterTest {
 
         val out = new StringWriter();
         val bufOut = new BufferedWriter(out);
-        val r = new FilterResult();
-        f.apply(in, bufOut, "in", r);
+        val stats = f.apply(in, bufOut, "in");
         bufOut.close();
 
         assertEquals(expected, out.toString());
-        assertEquals(5, r.inputRows);
-        assertEquals(3, r.outputRows);
-        assertEquals(1, r.errorRows);
+        assertEquals(5, stats.inputRows);
+        assertEquals(3, stats.outputRows);
+        assertEquals(1, stats.errorRows);
     }
 
     @Test

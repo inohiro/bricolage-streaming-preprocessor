@@ -4,10 +4,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class UnixTimeOpTest {
+public class UnixTimeOpTest extends OpTest {
     @Test
     public void build() throws Exception {
-        val def = new OperatorDefinition("unixtime", "schema.table", "ut_col", "{\"zoneOffset\":\"+09:00\"}");
+        val def = new OperatorDefinition(stream("schema.table"), "unixtime", "ut_col", "{\"zoneOffset\":\"+09:00\"}");
         val op = (UnixTimeOp)Op.build(def);
         assertEquals("ut_col", op.targetColumnName());
         assertEquals(ZoneOffset.of("+09:00"), op.zoneOffset);

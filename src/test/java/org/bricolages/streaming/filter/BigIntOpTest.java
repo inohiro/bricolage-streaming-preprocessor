@@ -3,7 +3,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import lombok.*;
 
-public class BigIntOpTest {
+public class BigIntOpTest extends OpTest {
     @Test
     public void apply() throws Exception {
         val f = new BigIntOp(null);
