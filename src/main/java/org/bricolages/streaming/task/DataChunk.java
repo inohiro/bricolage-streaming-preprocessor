@@ -17,7 +17,7 @@ public class DataChunk {
     @Id
     @Column(name="object_id", nullable=false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    long id;
+    Long id = null;
 
     @Column(name="object_url", nullable=false)
     String objectUrl;
