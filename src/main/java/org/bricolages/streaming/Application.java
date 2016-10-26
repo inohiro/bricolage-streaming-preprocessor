@@ -127,8 +127,15 @@ public class Application {
         val repos = repos();
         System.err.println("stream repository: " + repos.streams);
         System.err.println("packet repository: " + repos.packets);
-        DataStream str = repos.streams.getOne(new Long(1));
-        System.err.println(str);
+        DataStream stream = repos.streams.getOne(new Long(1));
+        System.err.println(stream);
+        try {
+            DataStream stream2 = new DataStream(stream.getName(), "");
+            repos.streams.save(stream2);  // duplicated write
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            System.err.println("exception: " + ex.getMessage());
+        }
     }
 
     @Bean
