@@ -17,7 +17,7 @@ public class Activity {
     long id;
 
     @ManyToOne(optional=false, fetch=FetchType.LAZY)
-    @Column(name="packat_id", nullable=false)
+    @JoinColumn(name="packat_id", nullable=false)
     DataPacket packet;
 
     static final String STATUS_RUNNING = "running";

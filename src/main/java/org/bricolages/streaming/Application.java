@@ -1,4 +1,5 @@
-package org.bricolages.streaming.preprocess;
+package org.bricolages.streaming;
+import org.bricolages.streaming.preprocess.*;
 import org.bricolages.streaming.stream.StreamRouter;
 import org.bricolages.streaming.event.EventQueue;
 import org.bricolages.streaming.event.LogQueue;
@@ -18,6 +19,8 @@ import java.io.PrintStream;
 import java.util.Objects;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.bricolages.streaming.stream.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
 @EnableJpaRepositories
@@ -33,6 +36,7 @@ public class Application {
         boolean oneshot = false;
         S3ObjectLocation mapUrl = null;
         S3ObjectLocation procUrl = null;
+        boolean runTestCode = false;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("--config=")) {
@@ -62,6 +66,9 @@ public class Application {
                 }
                 procUrl = S3ObjectLocation.forUrl(kv[1]);
             }
+            else if (Objects.equals(args[i], "--test")) {
+                runTestCode = true;
+            }
             else if (Objects.equals(args[i], "--help")) {
                 printUsage(System.out);
                 System.exit(0);
@@ -90,6 +97,9 @@ public class Application {
         }
 
         log.info("configPath=" + configPath);
+        if (runTestCode) {
+            runTestCode();
+        } else
         if (procUrl != null) {
             val out = new BufferedWriter(new OutputStreamWriter(System.out));
             preprocessor().processOnly(procUrl, out);
@@ -111,6 +121,24 @@ public class Application {
         s.println("\t--map-url=S3URL       Prints destination S3 URL for S3URL and quit.");
         s.println("\t--process-url=S3URL   Process the data file S3URL as configured and print to stdout.");
         s.println("\t--help                Prints this message and quit.");
+    }
+
+    void runTestCode() {
+        val repos = repos();
+        System.err.println("stream repository: " + repos.streams);
+        System.err.println("packet repository: " + repos.packets);
+        DataStream str = repos.streams.getOne(new Long(1));
+        System.err.println(str);
+    }
+
+    @Bean
+    Repos repos() {
+        return new Repos();
+    }
+
+    static final class Repos {
+        @Autowired DataStreamRepository streams;
+        @Autowired DataPacketRepository packets;
     }
 
     String configPath = "config/streaming-preprocessor.yml";

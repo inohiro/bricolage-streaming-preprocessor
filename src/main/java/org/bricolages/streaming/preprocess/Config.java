@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-class Config {
+public class Config {
     static public Config load(String path) throws ConfigError {
         try {
             try (InputStream in = new FileInputStream(path)) {
@@ -38,14 +38,14 @@ class Config {
     public SendQueueEntry logQueue;
     public List<StreamRouter.Entry> mapping;
 
-    static final class ReceiveQueueEntry {
+    static public final class ReceiveQueueEntry {
         public String url;
         public int visibilityTimeout;
         public int maxNumberOfMessages;
         public int waitTimeSeconds;
     }
 
-    static final class SendQueueEntry {
+    static public final class SendQueueEntry {
         public String url;
     }
 }

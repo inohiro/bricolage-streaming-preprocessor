@@ -1,5 +1,6 @@
 package org.bricolages.streaming.stream;
 import org.bricolages.streaming.s3.S3ObjectLocation;
+import org.hibernate.annotations.Proxy;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
@@ -9,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Entity
+@Proxy(lazy=false)
 @Table(name="strload_packets")
 public class DataPacket {
     @Getter
@@ -19,13 +21,14 @@ public class DataPacket {
 
     @Getter
     @ManyToOne(optional=false, fetch=FetchType.EAGER)
-    @Column(name="stream_id", nullable=false)
+    @JoinColumn(name="stream_id", nullable=false)
     DataStream stream;
 
     @Column(name="object_url", nullable=false)
     String objectUrl;
 
     @Getter
+    @Transient
     S3ObjectLocation location;
 
     @Getter
@@ -37,6 +40,7 @@ public class DataPacket {
     boolean pending = false;
 
     @Getter
+    @Transient
     S3ObjectLocation destination;
 
     public DataPacket(DataStream stream, S3ObjectLocation location, S3ObjectLocation destination) {

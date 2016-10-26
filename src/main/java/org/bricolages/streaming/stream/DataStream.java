@@ -3,6 +3,7 @@ import org.bricolages.streaming.filter.ObjectFilter;
 import org.bricolages.streaming.filter.OperatorDefinition;
 import org.bricolages.streaming.filter.OperatorDefinitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.annotations.Proxy;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @ToString
 @Entity
+@Proxy(lazy=false)
 @Table(name="strload_streams")
 @Slf4j
 public class DataStream {
@@ -25,8 +27,8 @@ public class DataStream {
     @Column(name="stream_name", nullable=false)
     String name;
 
-    @Column(name="stream_prefix", nullable=false)
-    String prefix;
+    //@Column(name="stream_prefix", nullable=false)
+    //String prefix;
 
     // We do not use table entity, just treat as an integer
     @Column(name="table_id")
@@ -47,7 +49,7 @@ public class DataStream {
 
     public DataStream(String name, String prefix) {
         this.name = name;
-        this.prefix = prefix;
+        //this.prefix = prefix;
         this.disabled = true;
     }
 
@@ -60,6 +62,7 @@ public class DataStream {
     }
 
     @Autowired
+    @Transient
     DataPacketRepository packetRepos;
 
     public void defer(DataPacket packet) {
